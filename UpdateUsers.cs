@@ -14,7 +14,7 @@ namespace GraphConsole
     internal class UpdateUsers
     {
         private readonly static string clientId = "8f941f02-1ce1-4704-960f-896d37fb32d3";
-        private static readonly string clientSecret = "wI.8Q~CTyS7u.vFqrmcrxuwkALb0fgUhJjJmRc2v";
+        private static readonly string clientSecret = "...";
         private readonly static string authority = "https://login.microsoftonline.com/mrochonb2cprod.onmicrosoft.com";
         private HttpClient http = new HttpClient();
 
