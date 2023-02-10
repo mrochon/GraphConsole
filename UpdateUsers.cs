@@ -1,30 +1,25 @@
-﻿using Microsoft.Identity.Client;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Identity.Client;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using static System.Net.WebRequestMethods;
 
 namespace GraphConsole
 {
     internal class UpdateUsers
     {
-        private readonly static string clientId = "8f941f02-1ce1-4704-960f-896d37fb32d3";
-        private static readonly string clientSecret = "...";
-        private readonly static string authority = "https://login.microsoftonline.com/mrochonb2cprod.onmicrosoft.com";
-        private HttpClient http = new HttpClient();
+        private readonly IConfiguration _conf;
+        private HttpClient _http = new HttpClient();
 
-        private IConfidentialClientApplication auth;
-        public UpdateUsers()
+        private IConfidentialClientApplication _auth;
+
+        public UpdateUsers(IConfiguration conf)
         {
-            auth = ConfidentialClientApplicationBuilder
-                .Create(clientId)
-                .WithAuthority(authority)
-                .WithClientSecret(clientSecret)
+            _conf = conf;
+            var opts = new ConfidentialClientApplicationOptions();
+            _conf.Bind("Auth", opts);
+            _auth = ConfidentialClientApplicationBuilder
+                .CreateWithApplicationOptions(opts)
                 .Build();
         }
         public async Task<int> Update()
@@ -63,13 +58,13 @@ namespace GraphConsole
 
         private async Task<string> CallGraph(HttpRequestMessage req)
         {
-            var tokens = await auth.AcquireTokenForClient(new string[] { "https://graph.microsoft.com/.default" })
+            var tokens = await _auth.AcquireTokenForClient(new string[] { "https://graph.microsoft.com/.default" })
                 .ExecuteAsync();
-            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokens.AccessToken);
+            _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokens.AccessToken);
             var retry = true;
             while (retry)
             {
-                var resp = await http.SendAsync(req);
+                var resp = await _http.SendAsync(req);
                 if (resp.IsSuccessStatusCode)
                 {
                     retry = false;
